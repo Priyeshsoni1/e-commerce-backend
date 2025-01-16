@@ -4,9 +4,14 @@ const server = express();
 const mongoose = require("mongoose");
 const { createProduct } = require("./controller/Product");
 const productsRouter = require("./routes/Products");
+const categoriesRouter = require("./routes/Category");
+const brandsRouter = require("./routes/Brands");
 
 server.use(express.json());
 server.use("/products", productsRouter.router);
+server.use("/categories", categoriesRouter.router);
+server.use("/brands", brandsRouter.router);
+
 main().catch((err) => console.log(err));
 
 async function main() {
