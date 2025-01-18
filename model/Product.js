@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
-productschema = new Schema({
+productSchema = new Schema({
   title: { type: String, required: true, unique: true },
   description: { type: String, required: true },
   price: {
@@ -29,9 +29,9 @@ productschema = new Schema({
   deleted: { type: String, default: true },
 });
 
-const virtual = productschema.virtual("id");
+const virtual = productSchema.virtual("id");
 virtual.get(() => this._id);
-productschema.set("toJSON", {
+productSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
@@ -40,4 +40,4 @@ productschema.set("toJSON", {
   },
 });
 
-exports.Product = mongoose.model("product", productschema);
+exports.Product = mongoose.model("product", productSchema);
