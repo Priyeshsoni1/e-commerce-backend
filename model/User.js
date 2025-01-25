@@ -7,7 +7,7 @@ userSchema = new Schema({
   password: { type: String, required: true },
   role: { type: String, default: "user" },
   address: {
-    type: [Schema.Types.Mixed],
+    type: Schema.Types.Mixed,
     //   street: { type: String, required: true },
     //   city: { type: String, required: true },
     //   state: { type: String, required: true },
