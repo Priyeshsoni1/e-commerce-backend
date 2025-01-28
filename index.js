@@ -1,3 +1,6 @@
+//Tools and Libraries Imports
+
+require("dotenv").config();
 const express = require("express");
 const server = express();
 const cors = require("cors");
@@ -7,7 +10,13 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+const path = require("path");
+const JwtStrategy = require("passport-jwt").Strategy;
+const ExtractJwt = require("passport-jwt").ExtractJwt;
+const { env } = require("process");
+const stripe = require("stripe")(process.env.STRIPE_SERVER_KEY);
 
+//File Imports
 const productsRouter = require("./routes/Products");
 const categoriesRouter = require("./routes/Category");
 const brandsRouter = require("./routes/Brands");
@@ -15,37 +24,111 @@ const usersRouter = require("./routes/User");
 const authRouter = require("./routes/Auth");
 const cartRouter = require("./routes/Cart");
 const orderRouter = require("./routes/Order");
-
 const { User } = require("./model/User");
+const { sanitizeUser, cookieExtractor, isAuth } = require("./services/common");
+const { Order } = require("./model/Order");
 
-const JwtStrategy = require("passport-jwt").Strategy;
-const ExtractJwt = require("passport-jwt").ExtractJwt;
-const { sanitizeUser, cookieExtractor } = require("./services/common");
+//-----------------------------------------------------------------------
 
-var opts = {};
+// Webhook
+
+const endpointSecret = process.env.ENDPOINT_SECRET;
+
+server.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  async (request, response) => {
+    const sig = request.headers["stripe-signature"];
+
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+    } catch (err) {
+      response.status(400).send(`Webhook Error: ${err.message}`);
+      return;
+    }
+
+    // Handle the event
+    switch (event.type) {
+      case "payment_intent.succeeded":
+        const paymentIntentSucceeded = event.data.object;
+
+        const order = await Order.findById(
+          paymentIntentSucceeded.metadata.orderId
+        );
+        order.paymentStatus = "received";
+        await order.save();
+
+        break;
+      // ... handle other event types
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    // Return a 200 response to acknowledge receipt of the event
+    response.send();
+  }
+);
+
+// JWT options
+
+const opts = {};
 opts.jwtFromRequest = cookieExtractor;
-opts.secretOrKey = "secret";
-server.use(express.static("build"));
+opts.secretOrKey = process.env.JWT_SECRET_KEY;
+
+// Middlewares
+
+server.use(express.static(path.resolve(__dirname, "public")));
+
+server.use(cookieParser());
+
 server.use(
   session({
-    secret: "keyboard cat",
+    secret: process.env.SESSION_KEY,
     resave: false, // don't save session if unmodified
     saveUninitialized: false, // don't create session until something stored
     // store: new SQLiteStore({ db: "sessions.db", dir: "./var/db" }),
   })
 );
-server.use(cookieParser());
+
+server.use(
+  cors({
+    exposedHeaders: [`X-Total-Count`],
+  })
+);
+
 server.use(passport.authenticate("session"));
+
+server.use(express.json()); // to parse req.body
+
+// Routes
+
+server.use("/products", isAuth(), productsRouter.router);
+server.use("/categories", isAuth(), categoriesRouter.router);
+server.use("/brands", isAuth(), brandsRouter.router);
+server.use("/users", isAuth(), usersRouter.router);
+server.use("/auth", authRouter.router);
+server.use("/cart", isAuth(), cartRouter.router);
+server.use("/orders", isAuth(), orderRouter.router);
+
+// Passport Strategies
+
 passport.use(
   "local",
-  new LocalStrategy(async function (username, password, done) {
+  new LocalStrategy({ usernameField: "email" }, async function (
+    email,
+    password,
+    done
+  ) {
+    // by default passport uses username
+    console.log({ email, password });
     try {
-      const user = await User.findOne({ email: username });
-
+      const user = await User.findOne({ email: email });
+      console.log(email, password, user);
       if (!user) {
         return done(null, false, { message: "invalid credentials" }); // for safety
       }
-
       crypto.pbkdf2(
         password,
         user.salt,
@@ -100,33 +183,37 @@ passport.deserializeUser(function (user, cb) {
   });
 });
 
-server.use(
-  cors({
-    exposedHeaders: [`X-Total-Count`],
-  })
-);
+// Stripe Payments
 
-server.use(express.json());
+server.post("/create-payment-intent", async (req, res) => {
+  const { totalAmount, orderId } = req.body;
 
-server.use("/products", isAuth(), productsRouter.router);
-server.use("/categories", isAuth(), categoriesRouter.router);
-server.use("/brands", isAuth(), brandsRouter.router);
-server.use("/user", isAuth(), usersRouter.router);
-server.use("/auth", authRouter.router);
-server.use("/cart", isAuth(), cartRouter.router);
-server.use("/order", isAuth(), orderRouter.router);
+  // Create a PaymentIntent with the order amount and currency
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: totalAmount * 100, // for decimal compensation
+    currency: "inr",
+    automatic_payment_methods: {
+      enabled: true,
+    },
+    metadata: {
+      orderId,
+    },
+  });
+
+  res.send({
+    clientSecret: paymentIntent.client_secret,
+  });
+});
+
+main().catch((err) => console.log(err));
 
 main().catch((err) => console.log(err));
 
 async function main() {
-  await mongoose.connect("mongodb://127.0.0.1:27017/bussiness");
+  await mongoose.connect(process.env.MONGODB_URL);
   console.log("database connected");
 }
 
-server.get("/", (req, res) => {
-  res.json({ status: "success" });
-});
-
-server.listen(8080, () => {
-  console.log("priyesh server");
+server.listen(process.env.PORT, () => {
+  console.log("server started");
 });
