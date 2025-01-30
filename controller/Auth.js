@@ -57,6 +57,7 @@ exports.logout = async (req, res) => {
 };
 
 exports.checkAuth = async (req, res) => {
+  console.log(req.user, "auth page");
   if (req.user) {
     res.json(req.user);
   } else {

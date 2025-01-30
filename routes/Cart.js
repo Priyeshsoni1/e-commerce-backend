@@ -9,8 +9,9 @@ const {
 const router = express.Router();
 console.log("auth");
 router
-  .get("/", fetchCartByUser)
   .post("/", addToCart)
+  .get("/", fetchCartByUser)
+
   .delete("/:id", deleteCart)
   .patch(":/id", updateCart);
 

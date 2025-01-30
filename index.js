@@ -15,6 +15,7 @@ const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const { env } = require("process");
 const stripe = require("stripe")(process.env.STRIPE_SERVER_KEY);
+const crypto = require("crypto");
 
 //File Imports
 const productsRouter = require("./routes/Products");
@@ -29,7 +30,22 @@ const { sanitizeUser, cookieExtractor, isAuth } = require("./services/common");
 const { Order } = require("./model/Order");
 
 //-----------------------------------------------------------------------
+const winston = require("winston");
 
+const logger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.timestamp(),
+    winston.format.printf(({ timestamp, level, message }) => {
+      return `${timestamp} ${level}: ${message}`;
+    })
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: "combined.log" }),
+  ],
+});
 // Webhook
 
 const endpointSecret = process.env.ENDPOINT_SECRET;
@@ -79,7 +95,7 @@ opts.secretOrKey = process.env.JWT_SECRET_KEY;
 
 // Middlewares
 
-server.use(express.static(path.resolve(__dirname, "public")));
+server.use(express.static(path.resolve(__dirname, "dist")));
 
 server.use(cookieParser());
 
@@ -112,6 +128,10 @@ server.use("/auth", authRouter.router);
 server.use("/cart", isAuth(), cartRouter.router);
 server.use("/orders", isAuth(), orderRouter.router);
 
+// Catch-all route to serve the index.html file
+server.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "dist", "index.html"));
+});
 // Passport Strategies
 
 passport.use(
@@ -125,7 +145,7 @@ passport.use(
     console.log({ email, password });
     try {
       const user = await User.findOne({ email: email });
-      console.log(email, password, user);
+
       if (!user) {
         return done(null, false, { message: "invalid credentials" }); // for safety
       }
@@ -143,6 +163,7 @@ passport.use(
             sanitizeUser(user),
             process.env.JWT_SECRET_KEY
           );
+          console.log("token", token);
           done(null, { id: user.id, role: user.role, token }); // this lines sends to serializer
         }
       );
@@ -155,8 +176,10 @@ passport.use(
 passport.use(
   "jwt",
   new JwtStrategy(opts, async function (jwt_payload, done) {
+    console.log("-------Passport jwt calls", jwt_payload);
     try {
       const user = await User.findById(jwt_payload.id);
+      console.log("user", user);
       if (user) {
         return done(null, sanitizeUser(user)); // this calls serializer
       } else {
@@ -170,14 +193,16 @@ passport.use(
 
 // this creates session variable req.user on being called from callbacks
 passport.serializeUser(function (user, cb) {
+  console.log("serializeUser", sanitizeUser(user));
   process.nextTick(function () {
-    return cb(null, { id: user.id, role: user.role });
+    return cb(null, sanitizeUser(user));
   });
 });
 
 // this changes session variable req.user when called from authorized request
 
 passport.deserializeUser(function (user, cb) {
+  console.log("deserializeUser", user);
   process.nextTick(function () {
     return cb(null, user);
   });

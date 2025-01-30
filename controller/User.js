@@ -5,6 +5,7 @@ exports.fetchUserById = async (req, res) => {
   const { id } = req.user;
   try {
     const doc = await User.findById(id).exec();
+    console.log(req.user._doc, "id", doc, "doc");
     res.status(200).json({
       id: doc.id,
       role: doc.role,

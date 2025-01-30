@@ -2,14 +2,18 @@ const mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
-cartSchema = new Schema({
+const cartSchema = new Schema({
   quantity: { type: Number, required: true },
-  product: { type: Schema.Types.ObjectId, ref: "product", required: true },
-  user: { type: Schema.Types.ObjectId, ref: "user", required: true },
+  product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+  user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  size: { type: Schema.Types.Mixed },
+  color: { type: Schema.Types.Mixed },
 });
 
 const virtual = cartSchema.virtual("id");
-virtual.get(() => this._id);
+virtual.get(function () {
+  return this._id;
+});
 cartSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
@@ -19,4 +23,4 @@ cartSchema.set("toJSON", {
   },
 });
 
-exports.Cart = mongoose.model("cart", cartSchema);
+exports.Cart = mongoose.model("Cart", cartSchema);

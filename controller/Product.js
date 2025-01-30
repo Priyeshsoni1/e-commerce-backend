@@ -15,6 +15,8 @@ exports.fetchAllProduct = async (req, res) => {
   // filter = {"category":["smartphone","laptops"]}
   // sort = {_sort:"price",_order="desc"}
   // pagination = {_page:1,_limit=10}
+
+  console.log("------------------fetchalproduct------------------");
   let condition = {};
   if (!req.query.admin) {
     condition = { deleted: { $ne: true } };

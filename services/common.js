@@ -2,19 +2,30 @@ const passport = require("passport");
 const nodemailer = require("nodemailer");
 
 exports.isAuth = (req, res, done) => {
+  console.log("isAuth commonjs called");
   return passport.authenticate("jwt");
 };
 
 exports.sanitizeUser = (user) => {
-  const { password, salt, ...sanitizedUser } = user;
-  return sanitizedUser;
+  if (!user) {
+    return null;
+  }
+  return {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  };
 };
 
 exports.cookieExtractor = function (req) {
-  let token = null;
-  if (req && req.cookies) {
-    token = req.cookies["jwt"];
-  }
+  let token =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OWE5MzYyMzQ3NzZiZWYzZjY5ZjZlZiIsImVtYWlsIjoid2FiY0BnbWFpbC5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTczODI3NDM0Mn0.Vx9o6HwTjoMr1RzlkRxHxYyTWWjRJJ7aH6a5jWGvILI";
+  // let token = null;
+  // if (req && req.cookies) {
+  //   token = req.cookies["jwt"];
+  //   console.log("cook", req.cookies["jwt"]);
+  // }
+
   return token;
 };
 
