@@ -1,14 +1,14 @@
 const express = require("express");
 const {
   createProduct,
-  fetchAllProduct,
+  fetchAllProducts,
   fetchProductById,
   updateProduct,
 } = require("../controller/Product");
 const router = express.Router();
 router
   .post("/", createProduct)
-  .get("/", fetchAllProduct)
+  .get("/", fetchAllProducts)
   .get("/:id", fetchProductById)
   .patch("/:id", updateProduct);
 

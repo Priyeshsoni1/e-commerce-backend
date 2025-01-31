@@ -18,7 +18,7 @@ cartSchema.set("toJSON", {
   virtuals: true,
   versionKey: false,
   transform: (doc, ret) => {
-    ret.id = ret._id; // Map _id to id
+    // ret.id = ret._id; // Map _id to id
     delete ret._id; // Remove _id field
   },
 });

@@ -19,8 +19,9 @@ exports.sanitizeUser = (user) => {
 
 exports.cookieExtractor = function (req) {
   let token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OWE5MzYyMzQ3NzZiZWYzZjY5ZjZlZiIsImVtYWlsIjoid2FiY0BnbWFpbC5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTczODI3NDM0Mn0.Vx9o6HwTjoMr1RzlkRxHxYyTWWjRJJ7aH6a5jWGvILI";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OWQzODAzZDg0MDEyOTVjZTM3MGMyZCIsImVtYWlsIjoid2FiY0BnbWFpbC5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTczODM1NjczOX0.k0omQQGt0ixJ5euDYu3qc912NFgfVySxFk-oaPQYhOk";
   // let token = null;
+
   // if (req && req.cookies) {
   //   token = req.cookies["jwt"];
   //   console.log("cook", req.cookies["jwt"]);

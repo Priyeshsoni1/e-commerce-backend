@@ -37,4 +37,4 @@ userSchema.set("toObject", {
     delete ret._id; // Remove _id field
   },
 });
-exports.User = mongoose.model("user", userSchema);
+exports.User = mongoose.model("User", userSchema);
