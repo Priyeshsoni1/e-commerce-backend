@@ -11,8 +11,7 @@ console.log("auth");
 router
   .post("/", addToCart)
   .get("/", fetchCartByUser)
-
   .delete("/:id", deleteCart)
-  .patch(":/id", updateCart);
+  .patch("/:id", updateCart);
 
 exports.router = router;

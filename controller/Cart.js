@@ -32,13 +32,17 @@ exports.addToCart = async (req, res) => {
 
 exports.updateCart = async (req, res) => {
   const { id } = req.params;
+  console.log("updateCart", id);
   try {
     const cart = await Cart.findByIdAndUpdate(id, req.body, {
       new: true,
     });
+    console.log("updateCart", cart);
     const result = await cart.populate("product");
+    console.log("updateCart", result);
     res.status(200).json(result);
   } catch (err) {
+    console.log("updateCart", err);
     res.status(400).json(err);
   }
 };
