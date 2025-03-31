@@ -39,21 +39,28 @@ exports.createUser = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
   const user = req.user;
+
+  // Set JWT token in cookie
   res
     .cookie("jwt", user.token, {
-      expires: new Date(Date.now() + 3600000),
-      httpOnly: true,
+      maxAge: 3600000, // 1 hour in milliseconds
+      httpOnly: true, // Prevent access via JavaScript
+      //  secure: process.env.NODE_ENV === 'production',Ensure cookie is sent only over HTTPS in production
+      sameSite: "None", // Allow cookies to be sent cross-origin
     })
     .status(201)
-    .json({ id: user.id, role: user.role });
+    .json({ id: user.id, role: user.role }); // Respond with user details, not the token
 };
+
 exports.logout = async (req, res) => {
   res
     .cookie("jwt", null, {
-      expires: new Date(Date.now()),
-      httpOnly: true,
+      maxAge: 0, // Expire the cookie immediately
+      httpOnly: true, // Prevent access via JavaScript
+      // secure: process.env.NODE_ENV === 'production',  Ensure secure cookie only in production
+      sameSite: "None", // Allow cookies to be sent cross-origin
     })
-    .sendStatus(200);
+    .sendStatus(200); // Return a 200 status indicating successful logout
 };
 
 exports.checkAuth = async (req, res) => {
