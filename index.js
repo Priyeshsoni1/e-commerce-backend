@@ -113,10 +113,6 @@ server.use("/auth", authRouter.router);
 server.use("/cart", isAuth(), cartRouter.router);
 server.use("/orders", isAuth(), orderRouter.router);
 
-// Catch-all route to serve the index.html file
-server.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "dist", "index.html"));
-});
 // Passport Strategies
 
 passport.use(
