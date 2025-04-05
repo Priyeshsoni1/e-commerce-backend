@@ -80,8 +80,6 @@ opts.secretOrKey = process.env.JWT_SECRET_KEY;
 
 // Middlewares
 
-server.use(express.static(path.resolve(__dirname, "dist")));
-
 server.use(cookieParser());
 
 server.use(
@@ -95,6 +93,8 @@ server.use(
 
 server.use(
   cors({
+    origin: "https://zencartel-priyesh.vercel.app/",
+    credentials: true,
     exposedHeaders: [`X-Total-Count`],
   })
 );

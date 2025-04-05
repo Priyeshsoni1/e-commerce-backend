@@ -46,6 +46,7 @@ exports.loginUser = async (req, res) => {
       maxAge: 3600000, // 1 hour in milliseconds
       httpOnly: true, // Prevent access via JavaScript
       //  secure: process.env.NODE_ENV === 'production',Ensure cookie is sent only over HTTPS in production
+      secure: true,
       sameSite: "None", // Allow cookies to be sent cross-origin
     })
     .status(201)

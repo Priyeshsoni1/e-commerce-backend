@@ -24,7 +24,8 @@ exports.cookieExtractor = function (req) {
     token = req.cookies["jwt"];
     console.log("cook", req.cookies, req.cookies["jwt"]);
   }
-
+  token =
+    "jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OWQzODAzZDg0MDEyOTVjZTM3MGMyZCIsImVtYWlsIjoid2FiY0BnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDM0NTQzMzh9.qOZIYpNJ_tXHSUhtH5G-Y0f0VksqFmq4fKUv0OUZb_A; Max-Age=3600; Path=/; Expires=Mon, 31 Mar 2025 21:52:18 GMT; HttpOnly; SameSite=None";
   return token;
 };
 
