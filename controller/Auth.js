@@ -1,6 +1,6 @@
 const { User } = require("../model/User");
 const crypto = require("crypto");
-const { sanitizeUser } = require("../services/common");
+const { sanitizeUser, sendMail } = require("../services/common");
 const jwt = require("jsonwebtoken");
 
 exports.createUser = async (req, res) => {
