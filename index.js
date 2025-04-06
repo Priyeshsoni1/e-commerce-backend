@@ -26,7 +26,7 @@ const authRouter = require("./routes/Auth");
 const cartRouter = require("./routes/Cart");
 const orderRouter = require("./routes/Order");
 const { User } = require("./model/User");
-const { sanitizeUser, cookieExtractor } = require("./services/common");
+const { sanitizeUser, cookieExtractor, isAuth } = require("./services/common");
 const { Order } = require("./model/Order");
 
 //-----------------------------------------------------------------------
@@ -93,7 +93,9 @@ server.use(
 
 server.use(
   cors({
-    exposedHeaders: [`X-Total-Count`],
+    origin: "https://zencartel-priyesh.vercel.app/", // <-- your frontend URL
+    credentials: true, // <-- allow sending cookies
+    exposedHeaders: ["X-Total-Count"],
   })
 );
 
@@ -156,17 +158,6 @@ passport.use(
     }
   })
 );
-function isAuth(req, res, done) {
-  console.log(
-    "isAuth commonjs called",
-    req,
-    res,
-    done,
-    passport.authenticate("jwt")
-  );
-
-  return passport.authenticate("jwt");
-}
 
 passport.use(
   "jwt",

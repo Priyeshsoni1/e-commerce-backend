@@ -1,10 +1,7 @@
 const passport = require("passport");
 const nodemailer = require("nodemailer");
 
-exports.isAuth = (req, res, done) => {
-  console.log("isAuth commonjs called", req, res, passport.authenticate("jwt"));
-  return passport.authenticate("jwt");
-};
+exports.isAuth = passport.authenticate("jwt", { session: false });
 
 exports.sanitizeUser = (user) => {
   console.log(user, "SanitizerUserFunction");
