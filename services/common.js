@@ -2,11 +2,12 @@ const passport = require("passport");
 const nodemailer = require("nodemailer");
 
 exports.isAuth = (req, res, done) => {
-  console.log("isAuth commonjs called");
+  console.log("isAuth commonjs called", req, res, passport.authenticate("jwt"));
   return passport.authenticate("jwt");
 };
 
 exports.sanitizeUser = (user) => {
+  console.log(user, "SanitizerUserFunction");
   if (!user) {
     return null;
   }
@@ -24,8 +25,8 @@ exports.cookieExtractor = function (req) {
     token = req.cookies["jwt"];
     console.log("cook", req.cookies, req.cookies["jwt"]);
   }
-  token =
-    "jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OWQzODAzZDg0MDEyOTVjZTM3MGMyZCIsImVtYWlsIjoid2FiY0BnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDM0NTQzMzh9.qOZIYpNJ_tXHSUhtH5G-Y0f0VksqFmq4fKUv0OUZb_A; Max-Age=3600; Path=/; Expires=Mon, 31 Mar 2025 21:52:18 GMT; HttpOnly; SameSite=None";
+  console.log(req.cookies, req.cookies["jwt"], "cookieExtractor");
+
   return token;
 };
 

@@ -26,7 +26,7 @@ const authRouter = require("./routes/Auth");
 const cartRouter = require("./routes/Cart");
 const orderRouter = require("./routes/Order");
 const { User } = require("./model/User");
-const { sanitizeUser, cookieExtractor, isAuth } = require("./services/common");
+const { sanitizeUser, cookieExtractor } = require("./services/common");
 const { Order } = require("./model/Order");
 
 //-----------------------------------------------------------------------
@@ -93,8 +93,6 @@ server.use(
 
 server.use(
   cors({
-    origin: "https://zencartel-priyesh.vercel.app/",
-    credentials: true,
     exposedHeaders: [`X-Total-Count`],
   })
 );
@@ -123,7 +121,7 @@ passport.use(
     done
   ) {
     // by default passport uses username
-    console.log({ email, password });
+    console.log("passportLocal", { email, password });
     try {
       const user = await User.findOne({ email: email });
 
@@ -145,7 +143,12 @@ passport.use(
             process.env.JWT_SECRET_KEY
           );
           console.log("token", token);
-          done(null, { id: user.id, role: user.role, token }); // this lines sends to serializer
+          done(null, {
+            id: user.id,
+            role: user.role,
+            email: user.email,
+            token,
+          }); // this lines sends to serializer
         }
       );
     } catch (err) {
@@ -153,11 +156,22 @@ passport.use(
     }
   })
 );
+function isAuth(req, res, done) {
+  console.log(
+    "isAuth commonjs called",
+    req,
+    res,
+    done,
+    passport.authenticate("jwt")
+  );
+
+  return passport.authenticate("jwt");
+}
 
 passport.use(
   "jwt",
   new JwtStrategy(opts, async function (jwt_payload, done) {
-    console.log("-------Passport jwt calls", jwt_payload);
+    console.log("isAuth commonjs called", opts, jwt_payload);
     try {
       const user = await User.findById(jwt_payload.id);
       console.log("user", user);
@@ -174,7 +188,7 @@ passport.use(
 
 // this creates session variable req.user on being called from callbacks
 passport.serializeUser(function (user, cb) {
-  console.log("serializeUser", sanitizeUser(user));
+  console.log("serializeUser", user, sanitizeUser(user));
   process.nextTick(function () {
     return cb(null, sanitizeUser(user));
   });
