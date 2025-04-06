@@ -44,8 +44,10 @@ exports.loginUser = async (req, res) => {
   res
     .cookie("jwt", user.token, {
       expires: new Date(Date.now() + 3600000),
+
       httpOnly: true,
-      secure: false,
+      secure: true, // <-- MUST be true
+      sameSite: "None", // <-- VERY IMPORTANT
     })
     .status(201)
     .json({ id: user.id, role: user.role });
@@ -56,7 +58,8 @@ exports.logout = async (req, res) => {
     .cookie("jwt", null, {
       maxAge: 0, // Expire the cookie immediately
       httpOnly: true, // Prevent access via JavaScript
-      // secure: process.env.NODE_ENV === 'production',  Ensure secure cookie only in production
+      secure: true,
+
       sameSite: "None", // Allow cookies to be sent cross-origin
     })
     .sendStatus(200); // Return a 200 status indicating successful logout
