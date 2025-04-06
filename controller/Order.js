@@ -30,6 +30,7 @@ exports.createOrder = async (req, res) => {
     const doc = await order.save();
     const user = await User.findById(order.user);
 
+    console.log(invoiceTemplate(order), "invoicetemplate");
     sendMail({
       to: user.email,
       html: invoiceTemplate(order),

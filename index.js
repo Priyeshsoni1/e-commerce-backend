@@ -197,23 +197,28 @@ passport.deserializeUser(function (user, cb) {
 // Stripe Payments
 
 server.post("/create-payment-intent", async (req, res) => {
-  const { totalAmount, orderId } = req.body;
+  try {
+    const { totalAmount, orderId } = req.body;
+    console.log("Request Body =>", req.body);
 
-  // Create a PaymentIntent with the order amount and currency
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: totalAmount * 100, // for decimal compensation
-    currency: "inr",
-    automatic_payment_methods: {
-      enabled: true,
-    },
-    metadata: {
-      orderId,
-    },
-  });
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: totalAmount * 100,
+      currency: "inr",
+      automatic_payment_methods: {
+        enabled: true,
+      },
+      metadata: { orderId },
+    });
 
-  res.send({
-    clientSecret: paymentIntent.client_secret,
-  });
+    console.log("PaymentIntent =>", paymentIntent);
+
+    res.send({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (err) {
+    console.error("Error creating PaymentIntent", err);
+    res.status(500).send({ error: err.message });
+  }
 });
 
 main().catch((err) => console.log(err));
