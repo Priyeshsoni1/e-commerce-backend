@@ -77,6 +77,7 @@ exports.checkAuth = async (req, res) => {
 exports.resetPasswordRequest = async (req, res) => {
   const email = req.body.email;
   const user = await User.findOne({ email: email });
+  console.log(user, req.body.email, "ResetPassword");
   if (user) {
     const token = crypto.randomBytes(48).toString("hex");
     user.resetPasswordToken = token;
@@ -84,7 +85,12 @@ exports.resetPasswordRequest = async (req, res) => {
 
     // Also set token in email
     const resetPageLink =
-      "http://localhost:3000/reset-password?token=" + token + "&email=" + email;
+      "https://zencartel-priyesh.vercel.app/reset-password?token=" +
+      token +
+      "&email=" +
+      email;
+
+    console.log("resetLink", resetPageLink);
     const subject = "reset password for e-commerce";
     const html = `<p>Click <a href='${resetPageLink}'>here</a> to Reset Password</p>`;
 
