@@ -93,7 +93,7 @@ server.use(
 
 server.use(
   cors({
-    origin: "https://zencartel-priyesh.vercel.app/", // <-- your frontend URL
+    origin: "https://zencartel-priyesh.vercel.app", // <-- your frontend URL
     credentials: true, // <-- allow sending cookies
     exposedHeaders: ["X-Total-Count"],
   })
